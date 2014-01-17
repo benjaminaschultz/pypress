@@ -1,0 +1,21 @@
+Metadata-Version: 1.1
+Name: wordpress-helpers
+Version: 0.1
+Summary: Convenvience wrappers for blogging from python scripts and the command line securely
+Home-page: https://codeblue.umich.edu/git/glogpy
+Author: Benjamin Schultz
+Author-email: benjamin.a.schultz@gmail.com
+License: BSD
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Internet :: WWW/HTTP :: Site Management
+Classifier: Topic :: Utilities
+Classifier: Natural Language :: English
