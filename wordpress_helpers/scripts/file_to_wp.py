@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 import os,re,sys
+import argparse
+
 import datetime as dt
 import markdown as md
 import HTMLParser as hp
-import media_to_wp as mtw
-import argparse
 import wordpress_xmlrpc as wp
+
 from wordpress_helpers import *
 
 
 # create a subclass and override the handler methods
 class HTMLWPParser(hp.HTMLParser):
-
   def __init__(self):
     self.img_files=[]
     self.title = None
@@ -34,27 +34,30 @@ class HTMLWPParser(hp.HTMLParser):
     if re.match('h[1-9]',tag):
       if not self.title:
         self.title=self.cur_data
-    print(self.cur_data,tag)
 
   def getImageFiles(self):
     return self.img_files
 
   def getTitle(self):
     return self.title
+
+
 def main(argv):
   parser = argparse.ArgumentParser()
   parser.add_argument('-T','--title', help='title of wordpress post, defaults to first header\
-                      if unspecified.',
-                      nargs=1,dest='title')
+                      if unspecified.',dest='title')
   parser.add_argument('-t','--tags', help='tags for the wordpress post',
-                      nargs='*',dest='tags')
+                      nargs='*',dest='tags',default=list())
+  parser.add_argument('-c','--categories', help='categories for the wordpress post',
+                      nargs='*',dest='cats',default=['Lab Notebook'])
   parser.add_argument('files', help='file to be uploaded to the Glog',
                       nargs='+')
 
   args = parser.parse_args(argv)
-  print args
-  exit()
 
+  title = args.title
+  tags = args.tags
+  cats = args.cats
   conf= WPConfig()
   client = conf.getDefaultClient()
   base_url = conf.getBaseURL()
@@ -67,26 +70,35 @@ def main(argv):
   
   for f in args.files:
     ext = os.path.splitext(f)[1]
-    print(ext)
-    if not ext == '.html':
+    if ext == '.html':
+      #read in html file
+      txt=open(f).read()
+    elif ext in [ '.markdown', '.mdown', '.mkdn', '.mdwn', '.mkd', '.md']:
+      #convert markdown to html
+      txt = md.markdown(open(f).read())
+
+    else:
       print "cannot proceed uploading non html file: {}".format(f)
       pass
-    img_finder = HTMLWPParser()
-    img_finder.feed(open(f).read())
-    imgs = img_finder.getImageFiles()
-    print('Title = {}'.format(img_finder.getTitle()))
-    exit()
-    txt =open(f).read()
+      
+    html_parser = HTMLWPParser()
+    html_parser.feed(txt)
+
+    if title is None:
+      title=html_parser.getTitle()
+    imgs = html_parser.getImageFiles()
     if(len(imgs)>0):
-      urls = mtw.main(imgs,client)
+      wpmu = WPMediaUploader(client)
+      urls = wpmu.upload(imgs)
       for i,url in urls.iteritems():
         txt=re.sub('src="*{}"*'.format(i),'src="{}"'.format(url),txt)
 
     post = conf.getDefaultPost()
-    post.title=f
+    post.title=title
     post.content=txt
     #post.terms_names = {'post_tag':tags,'category':['Lab Notebook']}
-    post.terms_names = {'category':['Lab Notebook']}
+    post.terms_names['category'] += cats
+    post.terms_names['post_tag'] += tags
     client.call(wp.methods.posts.NewPost(post))
 
 if __name__=="__main__":

@@ -3,6 +3,7 @@ import sys
 import os
 import wordpress_xmlrpc as wp
 from wp_clients import *
+from wp_media import *
 
 ## Helper class to make posting to wordpress a bit easier
 # conf = WPConfig()
@@ -35,18 +36,9 @@ class WPConfig:
           setattr(post,k,v)
     except KeyError:
       print('No post defaults defined')
-    return post
 
-  def getDefaultMedia(self):
-    media = wp.WordPressMedia()
-    try:
-      media_attrs = (media.definition.keys())
-      for k,v in self.config['media_defaults'].iteritems():
-        if k in media_attrs:
-          setattr(media,k,v)
-    except KeyError:
-      print('No media defaults defined')
-    return media
+    setattr(post,'terms_names',{'category':list(),'post_tag':list()})
+    return post
 
   def getDefaultClient(self):
       try:
