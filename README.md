@@ -1,22 +1,22 @@
-Using the Glog is already pretty painless, but I wanted an easy way to make posts with media from the command line and maintain records of my work. Most of all, I wanted to write it in a language with normal sized font so that others could easily extend it. Well...
+Using the Glog is already pretty painless, but I wanted an easy way to make posts with media from the command line and maintain records of my work. I wanted to have it in a language with _normal_ sized font so that others could easily extend it. Well...
 
     $wpup README.md
     Username: baschult
     Password: 
-    Post titled "glogpy" updated from file "README.md"
+    New post titled "Introducing GlogPy" created from file "README.md" 
 ![mission accomplished](~/Downloads/accomplished.jpg "mission accomplished")
 Ah, rats! I forgot to categorize or tag the post
 
     $wpup -f README.md -c Knowledgebase Announcement -t glog wordpress 'command line'
     Username:baschult 
     Password: 
-    Post titled "glogpy" updated from file "README.md"
+    Post titled "Introducing GlogPy" updated from file "README.md"
 That's better. 
 <!--more-->
 Titles, tags and categories can be specified on the command line or in files using html comment syntax
 <!--congrats, you found the surprise--><!--title:Introducing GlogPy--><!--tags:'super secret tag'-->
 
-    <!--title:glogpy-->
+    <!--title:Introducing GlogPy-->
     <!--tags:glog, python, wordpress-->
     <!--categories:Knowledgebase-->
 "more" tags are automatically inserted after 10 lines if there is not one in the file already to prevent posts. for example...
@@ -38,15 +38,15 @@ Get glogpy from codeblue:
     git clone https://$USER@codeblue.umich.engin.umich.edu/git/glogpy
 python\_xmlrpc
 --------------
-This is a branch of this [repository](https://github.com/maxcutler/python-wordpress-xmlrpc) that I have modified to work with the secure\_xmlrpc wordpress plugin. Of course, the secure\_xmlrpc plugin does not work right noe, but when it does this library will let you securely post to wordpress without entering your password.
+This is a branch of this [repository](https://github.com/maxcutler/python-wordpress-xmlrpc) that I have modified to work with the secure\_xmlrpc wordpress plugin. Of course, the secure\_xmlrpc plugin does not work right now, but when it does this library will let you securely post to wordpress without entering your password.
 
 wordpress\_helpers
 --------------
-These are some convenience classes and scripts I wrote so that blog defaults can be handled read from a config file, also well as prompt the user for a password before posting so that your password doesn't need to be stored in a file anywhere.
+These are some convenience classes and scripts I wrote so that blog defaults can be handled read from a config file, as well as prompt the user for a password before posting so that your password doesn't need to be stored in a file anywhere.
 
 this folder also contains three scripts that I wrote and file useful.
 
-###media\_to\_wp.py
+### media\_to\_wp.py
 This script will batch upload media to your wordpress blog
 
     usage: media_to_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] files [files ...]
@@ -56,7 +56,7 @@ This script will batch upload media to your wordpress blog
       -u USERNAME, --user USERNAME  username with which you'd like to post to the blog
       -p PASSWORD, --password PASSWORD  password with which you'd like to post to the blog
 
-###file\_to\_wp.py
+### file\_to\_wp.py
 This script will batch upload markdown, txt and html files to your wordpress
 blog, automatically uploading any images and fixing image links. Direct uploading
 of markdown files requires the python markdown package
@@ -72,12 +72,13 @@ of markdown files requires the python markdown package
         -c [CATS [CATS ...]], --categories [CATS [CATS ...]]  categories for the wordpress post
         -f FILES [FILES ...], --files FILES [FILES ...]  files to be posted to the Glog
 
-###todo\_to\_wp.py
+### todo\_to\_wp.py
 This script integrates with todo.txt to post a report of tasks you've accomplished,
 automatically tagging posts with todo.txt project tags and linking to collaborators
 with todo.txt person handles.
 
 I think todo.txt is a really awesome tool. Get it [here.](http://todotxt.com/)
+I'll write a separate post about how I use this script and todo.txt to easily maintain a worklog.
 
     usage: todo_to_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] [-d DELTA] [-t [HTAGS [HTAGS ...]]]
     optional arguments:
@@ -129,3 +130,7 @@ know who you are and where you want to blog to
     cp /path/to/wordpress_helper/examples/wp-helper-example.json ~/.wp-helper.json
 
 Edit the config file with your username, blog url, default post settings, etc.
+
+New Features
+-------------
+I had josh make this repository so that it be easy for others to correct my mistakes and add new features. Everyone in the group should be able to commit, so have at it!
