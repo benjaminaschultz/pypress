@@ -27,7 +27,10 @@ class HTMLWPParser(hp.HTMLParser):
     if tag=='img':
       attrs={a[0]:a[1] for a in attrs}
       try:
-        self.img_files.append(attrs['src'])
+        file_path = attrs['src']
+        #don't try to upload images that are alreadly online!
+        if re.match('^https*://',file_path) is None:
+          self.img_files.append(file_path)
       except:
         print 'img tag contained no "src" attritube'
       

@@ -18,6 +18,7 @@ dog's back.
 ### Header 3
 ![it's me!](ben.jpg "ben")
 ![really!](ben1.jpg "ben1")
+![really!](http://imgur.com/z3aAE1c.jpg "ben1")
 > This is a blockquote.
 > 
 > This is the second paragraph in the blockquote.
