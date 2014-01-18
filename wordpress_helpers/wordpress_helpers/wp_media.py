@@ -16,7 +16,8 @@ class WPMediaUploader:
 
     #make sure the total size is reasonable(<15MB)
     tot_size=0.0
-    for f in files:
+    real_files = [os.path.realpath(os.path.expanduser(f)) for f in files]
+    for f in real_files:
       tot_size+=os.path.getsize(f)
 
     tot_size/=(1024**2)
@@ -26,12 +27,13 @@ class WPMediaUploader:
         exit(0)
 
     urls={}
-    for f in files:
-      mime = mt.guess_type(f)[0]
-      name = os.path.split(f)[-1]
-      bits = wp.compat.xmlrpc_client.Binary(open(f,'rb').read())
+    for f,rf in zip(files,real_files):
+      mime = mt.guess_type(rf)[0]
+      name = os.path.split(rf)[-1]
+      bits = wp.compat.xmlrpc_client.Binary(open(rf,'rb').read())
       data= {'name':name, 'type':mime, 'bits':bits }
       resp = self.client.call(wp.methods.media.UploadFile(data))
       urls[f]=resp['url']
+
 
     return urls

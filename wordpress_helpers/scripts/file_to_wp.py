@@ -2,14 +2,27 @@
 import os,re,sys
 import argparse
 
-import datetime as dt
-import markdown as md
 import HTMLParser as hp
 import StringIO as strio
 import wordpress_xmlrpc as wp
 
 from wordpress_helpers import *
 
+'''
+#mathjax safe markdown
+def markdown(txt):
+  import markdown2 as md
+  marked = '':
+  equation_nabber = re.compile(r'(\$\$|\$|\[\\?latex\])')
+  markdown_escaper = re.compile(r'^(\t\t|[+.*#(0-9.)]')
+  buff =''
+  for line in txt:
+    #if we're not in a codeblock, let's suck out the MathJax bits and process the rest with tex
+    if re.match(r'^\t\t') is None:
+      buff+=line
+  
+  txt = md.markdown(txt)
+'''
 
 # create a subclass and override the handler methods
 class HTMLWPParser(hp.HTMLParser):
@@ -73,30 +86,29 @@ class HTMLWPParser(hp.HTMLParser):
 
 def main(argv):
   parser = argparse.ArgumentParser()
+  parser.add_argument('-b','--blog', help='url of wordpress blog to which you want to post',dest='url')
+  parser.add_argument('-u','--user', help="username with which you'd like to post to the blog",dest='username')
+  parser.add_argument('-p','--password', help="password with which you'd like to post to the blog",dest='password')
   parser.add_argument('-T','--title', help='title of wordpress post, defaults to first header\
                       if unspecified.',dest='title')
   parser.add_argument('-t','--tags', help='tags for the wordpress post',
                       nargs='*',dest='tags',default=list())
   parser.add_argument('-c','--categories', help='categories for the wordpress post',
                       nargs='*',dest='cats',default=[])
-  parser.add_argument('-f','--files', help='file to be uploaded to the Glog',
-                      nargs='+')
+  parser.add_argument('-f','--files', help='file to be uploaded to the Glog',dest='files',
+                      nargs='+',required=True)
 
   args = parser.parse_args(argv)
 
+  #intit
+  conf= WPConfig(url=args.url,username=args.username,password=args.password)
+  client = conf.getDefaultClient()
+
+  #read in any title, tags or categories specified from the command line
   title = args.title
   tags = args.tags
   cats = args.cats
-  conf= WPConfig()
-  client = conf.getDefaultClient()
-  base_url = conf.getBaseURL()
 
-  user = conf.getDisplayName()
-
-  #get today's date
-  date_str = dt.date.today().isoformat()
-  
-  
   for f in args.files:
 
     #handle different file types
@@ -105,12 +117,11 @@ def main(argv):
       #read in html file
       txt=open(f).read()
     elif ext in [ '.markdown', '.mdown', '.mkdn', '.mdwn', '.mkd', '.md']:
-      #convert markdown to html
-      txt = md.markdown(open(f).read())
-
+      import markdown2 as md
+      txt=md.markdown(open(f).read())
     else:
       print "cannot proceed uploading non html file: {}".format(f)
-      pass
+      exit() 
     
     #parser the html file to be posted
     html_parser = HTMLWPParser()
@@ -134,22 +145,22 @@ def main(argv):
     #upload images and replace links to links on server
     imgs = html_parser.getImageFiles()
 
+
     # change directory to the file containing html so that
     # relative and absolute image paths easily and correctly
     dir_init = os.path.realpath(os.getcwd())
     dir_file = os.path.realpath(os.path.split(os.path.expanduser(f))[0])
-    os.chdir(dir_file)
 
+    #ship out the files and replace the links
     if(len(imgs)>0):
       wpmu = WPMediaUploader(client)
       urls = wpmu.upload(imgs)
       for i,url in urls.iteritems():
         txt=re.sub('src="*{}"*'.format(i),'src="{}"'.format(url),txt)
-
-    #change directory back
     os.chdir(dir_init)
 
     #setup the post object
+    title=title.strip().lstrip()
     post = conf.getDefaultPost()
     post.title=title
     post.content=txt

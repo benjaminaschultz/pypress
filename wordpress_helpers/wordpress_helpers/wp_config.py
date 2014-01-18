@@ -12,20 +12,32 @@ from wp_media import *
 # post.content = 'content'
 # client = conf.getDefaultClient()
 class WPConfig:
-  def __init__(self):
+  def __init__(self, url=None, username=None, password=None):
     cfg_file=''
-    if os.path.isfile('.wp-helpers.cfg'):
-      cfg_file='.wp-helpers.cfg'
-    elif os.path.isfile(os.path.expanduser('~/.wp-helpers.cfg')):
-      cfg_file=os.path.expanduser('~/.wp-helpers.cfg')
+    if os.path.isfile('.wp-helpers.json'):
+      cfg_file='.wp-helpers.json'
+    elif os.path.isfile(os.path.expanduser('~/.wp-helpers.json')):
+      cfg_file=os.path.expanduser('~/.wp-helpers.json')
     
 
     #parse config file(
     try:
       self.config=json.load(open(cfg_file))
     except IOError:
-      print('error opening cfg file {} falling back on defaults')
+      print('error opening configuration file {} falling back on defaults')
       exit(0)
+
+    self.url=url
+    if url is None and  self.config.has_key('url'):
+      self.url=self.config['url']
+
+    self.username=username
+    if username is None and self.config.has_key('username'):
+      self.username=self.config['username']
+
+    self.password=password
+    if password is None and self.config.has_key('password'):
+      self.password=self.config['password']
 
   def getDefaultPost(self):
     post = wp.WordPressPost()
@@ -43,15 +55,9 @@ class WPConfig:
   def getDefaultClient(self):
       try:
         if self.config.has_key('public_key') and self.config.has_key('private_key'):
-          return wp.SecureClient(url=self.config['url'],public_key =self.config['public_key'], private_key=self.config['private_key'])
+          return wp.SecureClient(url=self.url+'/xmlrpc.php', public_key=self.config['public_key'], private_key=self.config['private_key'])
         else:
-          username = None
-          password = None
-          if self.config.has_key('username'):
-            username=self.config['username']
-          if self.config.has_key('password'):
-            password=self.config['password']
-          return  UPClient(url=self.config['url'], username=username, password=password)
+          return  UPClient(url=self.url+'/xmlrpc.php', username=self.username, password=self.password)
       except Exception,e:
         print('Could not create client. {}'.format(e))
         exit(2)
