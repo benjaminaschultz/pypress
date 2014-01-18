@@ -1,0 +1,11 @@
+{
+  "url":"https://codeblue.umich.edu/wordpress/glotzer",
+  "username":"uniqname",
+  "display_name":"First Last",
+  "post_defaults":
+    {
+    "post_type":"post",
+    "post_status":"publish",
+    "comment_status":"open"
+    }
+}
