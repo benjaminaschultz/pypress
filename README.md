@@ -26,7 +26,6 @@ Titles, tags and categories can be specified on the command line or in files usi
     content
     <!--more-->
     more content
-
 Right now the biggest problem is that it does not support markdown files with mathjax directly. However, if you use another markdown tool and provide these scripts with the html output, everything will be hunky dory. It would be great if we could get this working with latex in some form, but wordpress doesn't like the output from htlatex, so that'll be added later.
 
 glogpy 
