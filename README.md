@@ -57,9 +57,7 @@ This script will batch upload media to your wordpress blog
       -p PASSWORD, --password PASSWORD  password with which you'd like to post to the blog
 
 ### file\_to\_wp.py
-This script will batch upload markdown, txt and html files to your wordpress
-blog, automatically uploading any images and fixing image links. Direct uploading
-of markdown files requires the python markdown package
+This script will batch upload markdown, txt and html files to your wordpress blog, automatically uploading any images and fixing image links. Direct uploading of markdown files requires the python markdown package
 
     usage: file\_to\_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] [-T TITLE] [-t [TAGS [TAGS ...]]] [-c [CATS [CATS ...]]] -f FILES [FILES ...]
     optional arguments:
@@ -73,12 +71,9 @@ of markdown files requires the python markdown package
         -f FILES [FILES ...], --files FILES [FILES ...]  files to be posted to the Glog
 
 ### todo\_to\_wp.py
-This script integrates with todo.txt to post a report of tasks you've accomplished,
-automatically tagging posts with todo.txt project tags and linking to collaborators
-with todo.txt person handles.
+This script integrates with todo.txt to post a report of tasks you've accomplished, automatically tagging posts with todo.txt project tags and linking to collaborators with todo.txt person handles.
 
-I think todo.txt is a really awesome tool. Get it [here.](http://todotxt.com/)
-I'll write a separate post about how I use this script and todo.txt to easily maintain a worklog.
+I think todo.txt is a really awesome tool. Get it [here.](http://todotxt.com/) I'll write a separate post about how I use this script and todo.txt to easily maintain a worklog.
 
     usage: todo_to_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] [-d DELTA] [-t [HTAGS [HTAGS ...]]]
     optional arguments:
@@ -109,26 +104,18 @@ I recommend adding some aliases to the scripts to your bashrc (e.g.)
     alias wpcp='/path/to/wordpress_helpers/scripts/media_to_wp.py'
     alias wpup='/path/to/wordpress_helpers/scripts/file_to_wp.py'
 
-If you plan to upload markdown files with my script, you should also
-install the markdown library via pip. If you don't have pip install it
-via your package manaager
+If you plan to upload markdown files with my script, you should also install the markdown library via pip. If you don't have pip install it via your package manaager
 
     sudo apt-get install python2.7-pip
-
 or
 
     sudo port install py27-pip
-
 then
 
     sudo pip install markdown2
-
-
-Next we want to put the config file in place so that the scripts
-know who you are and where you want to blog to
+Next we want to put the config file in place so that the scripts know who you are and where you want to blog to without using command line args every time.
   
     cp /path/to/wordpress_helper/examples/wp-helper-example.json ~/.wp-helper.json
-
 Edit the config file with your username, blog url, default post settings, etc.
 
 New Features
