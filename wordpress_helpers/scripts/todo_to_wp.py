@@ -1,8 +1,15 @@
 #!/usr/bin/env python
-import os,re
+import os,re,sys
+import argparse as ap
 import datetime as dt
 import wordpress_xmlrpc as wp
 from wordpress_helpers import *
+
+parser = ap.ArgumentParser()
+parser.add_argument('-d','--delta', help='number of days back from to post you worklog from. defaults to posting only todays accomplishments',default=1,dest='delta',type=int)
+parser.add_argument('-t','--tags', help='task hashtags to post to the worklog. defaults to posting all tasks',nargs='*',dest='htags')
+
+args = parser.parse_args(sys.argv[1:])
 
 conf= WPConfig()
 client = conf.getDefaultClient()
@@ -32,42 +39,57 @@ except:
 
 #get today's date
 date_str = dt.date.today().isoformat()
+dates=[date_str]
+for delta in range(args.delta):
+  dates.append((dt.date.today()-dt.timedelta(days=delta)).isoformat())
 done_file = todo_dir+'/done.txt'
 
 #list of today's accomplishments
-accomplishments=[]
+accomplishments={d:list() for d in dates}
 
 if(os.path.isfile(done_file)):
   for line in open(done_file):
-  
-    if (re.search('#glotzer',line) is not None 
-        and re.match('^x {}'.format(date_str),line) is not None):
-      accomplishments.append(line.split(date_str)[-1].replace('#glotzer',''))
+    for d in dates:
+       if re.match('^x {}'.format(d),line) is not None:
+        if any([re.search('#glotzer',line) is not None for ht in args.htags]) or len(args.htags)==0: 
+          for ht in args.htags:
+            line = line.split(d)[-1].replace('#{}'.format(ht),'')
+        accomplishments[d].append(line)
 else:
   print('Could not open done.txt')
   print todo_dir
   exit(0)
+
+
 #construct html list
 html_list=[]
 tags=[]
-for a in accomplishments:
-  if re.search('@\w+',a) is not None:
-    names = set([s[1:] for s in  re.findall('@\w+',a)])
-    for n in names:
-      if (users is None) or (n in users):
-        link = '<a href={0}blog/author/{1}>@{1}</a>'.format(base_url,n)
-        a=a.replace('@'+n,link)
+for d in dates:
+  if (len(accomplishments[d])>0):
+    html_list.append('<h2>{}</h2>\n'.format(d))
+    html_list.append('<ui>')
+    for a in accomplishments[d]:
+      if re.search('@\w+',a) is not None:
+        names = set([s[1:] for s in  re.findall('@\w+',a)])
+        for n in names:
+          if (users is None) or (n in users):
+            link = '<a href={0}blog/author/{1}>@{1}</a>'.format(base_url,n)
+            a=a.replace('@'+n,link)
 
-  if re.search('\+',a) is not None:
-    tags += [s[1:] for s in  re.findall('\+\w+',a)]
-    a = a.replace('\+','')
+      if re.search('\+',a) is not None:
+        tags += [s[1:] for s in  re.findall('\+\w+',a)]
+        a = a.replace('\+','')
 
-  html_list.append('<li>{}</li>'.format(a))
+      html_list.append('<li>{}</li>'.format(a))
+    html_list.append('</ui>')
 
-if len(html_list)>=3:
-  html_list = html_list[0:2]+['<!--more-->']+html_list[2:]
+if len(html_list)>=6:
+  html_list = html_list[0:5]+['<!--more-->']+html_list[2:]
 
-title='{}\'s Work Log for {}'.format(user,date_str)
+if len(dates)>1:
+  title='{}\'s Work Log: {} to {}'.format(user,dates[-1],dates[0])
+else:
+  title='{}\'s Work Log: {}'.format(user,dates[0])
 content = '<ui>'+''.join(html_list)+'</ui>'
 tags=list(set(tags))
 
@@ -75,7 +97,11 @@ post.title=title
 post.content=content
 post.terms_names = {'post_tag':tags,'category':['Lab Notebook']}
 #post.terms_names = {'category':['Lab Notebook']}
-client.call(wp.methods.posts.NewPost(post))
-print post 
-print content
-print tags
+
+#if this post has been posted before, just edit it, otherwise make a new post
+posts = client.call(wp.methods.posts.GetPosts())
+post_dict = {p.title:p.id for p in posts}
+if title in post_dict.keys():
+  client.call(wp.methods.posts.EditPost(post_dict[title],post))
+else:
+  client.call(wp.methods.posts.NewPost(post))
