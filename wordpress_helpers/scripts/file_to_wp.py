@@ -75,8 +75,8 @@ def main(argv):
   parser.add_argument('-t','--tags', help='tags for the wordpress post',
                       nargs='*',dest='tags',default=list())
   parser.add_argument('-c','--categories', help='categories for the wordpress post',
-                      nargs='*',dest='cats',default=['Lab Notebook'])
-  parser.add_argument('files', help='file to be uploaded to the Glog',
+                      nargs='*',dest='cats',default=[])
+  parser.add_argument('-f','--files', help='file to be uploaded to the Glog',
                       nargs='+')
 
   args = parser.parse_args(argv)
@@ -95,7 +95,7 @@ def main(argv):
   
   
   for f in args.files:
-    
+
     #handle different file types
     ext = os.path.splitext(f)[1]
     if ext in ['.html','.txt']:
@@ -130,11 +130,21 @@ def main(argv):
 
     #upload images and replace links to links on server
     imgs = html_parser.getImageFiles()
+
+    # change directory to the file containing html so that
+    # relative and absolute image paths easily and correctly
+    dir_init = os.path.realpath(os.getcwd())
+    dir_file = os.path.realpath(os.path.split(os.path.expanduser(f))[0])
+    os.chdir(dir_file)
+
     if(len(imgs)>0):
       wpmu = WPMediaUploader(client)
       urls = wpmu.upload(imgs)
       for i,url in urls.iteritems():
         txt=re.sub('src="*{}"*'.format(i),'src="{}"'.format(url),txt)
+
+    #change directory back
+    os.chdir(dir_init)
 
     #setup the post object
     post = conf.getDefaultPost()
@@ -150,8 +160,11 @@ def main(argv):
     post_dict = {p.title:p.id for p in posts}
     if title in post_dict.keys():
       client.call(wp.methods.posts.EditPost(post_dict[title],post))
+      print("Post titled \"{}\" updated from file \"{}\"".format(title,f))
     else:
       client.call(wp.methods.posts.NewPost(post))
+      print("New post titled \"{}\" created from file \"{}\"".format(title,f))
+
 
 if __name__=="__main__":
   main(sys.argv[1:])

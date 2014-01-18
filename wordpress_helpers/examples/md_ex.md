@@ -1,4 +1,7 @@
 <!--[what][is this]-->
+<!--title:Hello, is this nifty-->
+<!--tags:'bender is great'-->
+<!--categories:'test scripts'-->
 A First Level Header
 ====================
 
@@ -20,3 +23,4 @@ dog's back.
 > This is the second paragraph in the blockquote.
 >
 > ## This is an H2 in a blockquote
+<!--more-->
