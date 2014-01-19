@@ -42,8 +42,7 @@ def main(arv):
 
 
   #get today's date
-  date_str = dt.date.today().isoformat()
-  dates=[date_str]
+  dates=list()
   for delta in range(args.delta):
     dates.append((dt.date.today()-dt.timedelta(days=delta)).isoformat())
   done_file = todo_dir+'/done.txt'
@@ -55,15 +54,15 @@ def main(arv):
     for line in open(done_file):
       for d in dates:
          if re.match('^x {}'.format(d),line) is not None:
-          if any([re.search('#glotzer',line) is not None for ht in args.htags]) or len(args.htags)==0: 
+          if any([re.search('#'+ht,line) is not None for ht in args.htags]) or len(args.htags)==0: 
             for ht in args.htags:
               line = line.split(d)[-1].replace('#{}'.format(ht),'')
-          accomplishments[d].append(line)
+            accomplishments[d].append(line)
   else:
     print('Could not open done.txt')
     print todo_dir
     exit(0)
-
+  
 
   #construct html list
   html_list=[]
@@ -88,13 +87,13 @@ def main(arv):
       html_list.append('</ui>')
 
   if len(html_list)>=6:
-    html_list = html_list[0:5]+['<!--more-->']+html_list[2:]
+    html_list = html_list[0:5]+['<!--more-->']+html_list[5:]
 
   if len(dates)>1:
     title='{}\'s Work Log: {} to {}'.format(user,dates[-1],dates[0])
   else:
     title='{}\'s Work Log: {}'.format(user,dates[0])
-  content = '<ui>'+''.join(html_list)+'</ui>'
+  content = ''.join(html_list)
   tags=list(set(tags))
 
   post.title=title
