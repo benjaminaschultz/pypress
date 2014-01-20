@@ -42,7 +42,7 @@ class WPMediaUploader:
       media_lib = {os.path.split(m.link)[1]:m.link for m in media_list}
      
     for f,rf in zip(files,real_files):
-      server_filename= md5s[f] + exts[f]
+      server_filename= os.path.split(f)[1] if self.reupload else md5s[f] + exts[f]
       if server_filename in media_lib:
         urls[f]=media_lib[server_filename]
         print('file {} is already on the server and was not reuploaded.'.format(f))
