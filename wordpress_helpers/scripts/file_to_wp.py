@@ -82,12 +82,12 @@ def main(argv):
   parser.add_argument('-b','--blog', help='url of wordpress blog to which you want to post',dest='url')
   parser.add_argument('-u','--user', help="username with which you'd like to post to the blog",dest='username')
   parser.add_argument('-p','--password', help="password with which you'd like to post to the blog",dest='password')
-  parser.add_argument('-T','--title', help='title of wordpress post, defaults to first header\
-                      if unspecified.',dest='title')
+  parser.add_argument('-T','--titles', help='titles of wordpress posts, defaults to first header\
+                      if unspecified.',nargs='*',dest='titles',default=list())
   parser.add_argument('-t','--tags', help='tags for the wordpress post',
                       nargs='*',dest='tags',default=list())
   parser.add_argument('-c','--categories', help='categories for the wordpress post',
-                      nargs='*',dest='cats',default=[])
+                      nargs='*',dest='cats',default=list())
   parser.add_argument('-f','--files', help='file to be uploaded to the Glog',dest='files',
                       nargs='+',required=True)
 
@@ -98,11 +98,12 @@ def main(argv):
   client = conf.getDefaultClient()
 
   #read in any title, tags or categories specified from the command line
-  title = args.title
+  titles = args.titles
   tags = args.tags
   cats = args.cats
-
-  for f in args.files:
+  
+  titles += [None]*(len(args.files)-len(titles))
+  for f,title in zip(args.files,titles):
 
     #handle different file types
     froot, ext = os.path.splitext(f)
@@ -175,20 +176,34 @@ def main(argv):
     post.title=title
     post.content=txt
 
+    #full filepath
+    f_fullpath = os.path.realpath(f)
+
+    #Add the full filepath as a custom field to keep track of this post for updating 
+    post.custom_fields = [({'key':'local_file','value':f_fullpath})]
+
     #add categories and tags to post that were specified in document via html tags
     post.terms_names['category'] += cats + html_parser.getCategories()
     post.terms_names['post_tag'] += tags + html_parser.getTags()
 
     #if this post has been posted before, just edit it, otherwise make a new post
+    posted=False
     posts = client.call(wp.methods.posts.GetPosts())
-    post_dict = {p.title:p.id for p in posts}
-    if title in post_dict.keys():
-      client.call(wp.methods.posts.EditPost(post_dict[title],post))
-      print("Post titled \"{}\" updated from file \"{}\"".format(title,f))
-    else:
+    post_dict = dict()
+
+    for p in posts:
+      for cf in p.custom_fields:
+        if cf['key']=='local_file' and cf['value']==f_fullpath:
+            #there is a bug somewhere that when this post is edited, the list of custom fields is appended
+            #to rather than replaced. Adding the id is a hack that seems to stop it for now
+            post.custom_fields = [({'key':'local_file','value':f_fullpath,'id':p.id})]
+            client.call(wp.methods.posts.EditPost(p.id,post))
+            print("Post previously titled \"{}\" updated from file \"{}\"".format(p.title,f))
+            posted=True
+          
+    if not posted:
       client.call(wp.methods.posts.NewPost(post))
       print("New post titled \"{}\" created from file \"{}\"".format(title,f))
-
 
 if __name__=="__main__":
   main(sys.argv[1:])

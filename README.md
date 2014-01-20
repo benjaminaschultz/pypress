@@ -26,7 +26,8 @@ Titles, tags and categories can be specified on the command line or in files usi
     content
     <!--more-->
     more content
-Right now the biggest problem is that it does not support markdown files with mathjax directly. However, if you use another markdown tool and provide these scripts with the html output, everything will be hunky dory. It would be great if we could get this working with latex in some form, but wordpress doesn't like the output from htlatex, so that'll be added later.
+
+ Mathjax is support with markdown math syntax - '\(( \\)' for inline math and '\\[ \\]' for display math. It would be great if we could get this working with latex in some form, but wordpress doesn't like the output from htlatex, so that can be added later if its necessary.
 
 glogpy 
 ===============
@@ -103,7 +104,9 @@ I recommend adding some aliases to the scripts to your bashrc (e.g.)
     alias wpcp='/path/to/wordpress_helpers/scripts/media_to_wp.py'
     alias wpup='/path/to/wordpress_helpers/scripts/file_to_wp.py'
 
-If you plan to upload markdown files with my script, you should also install the markdown library via pip. If you don't have pip install it via your package manaager
+If you plan to use mathjax and markdown together, please install multimarkdown. There are mac installers available [here](http://fletcherpenney.net/multimarkdown/download/), or you can compile from source if you're a linux user ([git repo](https://github.com/fletcher/MultiMarkdown))
+
+If for whatever reason you can get multimarkdown working, you can use python's markdown2 library, but math syntax will not work.
 
     sudo apt-get install python2.7-pip
 or
@@ -116,6 +119,26 @@ Next we want to put the config file in place so that the scripts know who you ar
   
     cp /path/to/wordpress_helper/examples/wp-helper-example.json ~/.wp-helper.json
 Edit the config file with your username, blog url, default post settings, etc.
+
+Basic behavior
+-------------
+Read all about markdown [here.](http://daringfireball.net/projects/markdown/). 
+
+When you use these scripts to upload a markdown file e.g.,
+
+    $ wpup -f some_file.md -b https://blogthatoverridesconfile/ -u me
+
+The following things happen:
+1. The command line args are parsed and override any settings in your ~/.wp-helpers.json file
+2. Your markdown file is converted to html with multimarkdown
+3. An xmlrpc client connects to the blog
+4. The html text is parsed for images, title, tags, categories, a "more" tag and math content
+5. Images are renamed by their md5 sum and uploaded to the server if they do not exist already
+   + Note: To cut down on the amount of data sent back from the server, only the 50 most recent media items are checked against the media contained in a particular post
+6. Image links are replaced by links to media on the server
+7. If this post does not contain a more tag, one is inserted to prevent large posts takings over the blog.
+8. If this post contains math, a `[mathjax]` flag is added to the beginning of the post so WP knows to render equations.
+9. Posts by this user are retrieved. If a post has previously been created using this file, then it is updated by default, but this behavior can be overridden. Otherwise a new post is created.
 
 New Features
 -------------
