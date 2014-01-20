@@ -141,6 +141,8 @@ def main(argv):
     #if no title was passed in on the command line, insert one here
     if title is None:
       title=html_parser.getTitle()
+    if title is None:
+      title=f
 
     #upload images and replace links to links on server
     imgs = html_parser.getImageFiles()
