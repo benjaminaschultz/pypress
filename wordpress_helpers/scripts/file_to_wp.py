@@ -8,22 +8,6 @@ import wordpress_xmlrpc as wp
 
 from wordpress_helpers import *
 
-'''
-#mathjax safe markdown
-def markdown(txt):
-  import markdown2 as md
-  marked = '':
-  equation_nabber = re.compile(r'(\$\$|\$|\[\\?latex\])')
-  markdown_escaper = re.compile(r'^(\t\t|[+.*#(0-9.)]')
-  buff =''
-  for line in txt:
-    #if we're not in a codeblock, let's suck out the MathJax bits and process the rest with tex
-    if re.match(r'^\t\t') is None:
-      buff+=line
-  
-  txt = md.markdown(txt)
-'''
-
 # create a subclass and override the handler methods
 class HTMLWPParser(hp.HTMLParser):
   def __init__(self):
@@ -31,21 +15,27 @@ class HTMLWPParser(hp.HTMLParser):
     self.title = None
     self.cur_data=''
     self.has_more=False
+    self.has_math=False
     self.tags=[]
     self.cats=[]
     hp.HTMLParser.__init__(self)
 
   def handle_starttag(self, tag, attrs):
     self.cur_data=''
+    attrs={a[0]:a[1] for a in attrs}
     if tag=='img':
-      attrs={a[0]:a[1] for a in attrs}
       try:
         file_path = attrs['src']
         #don't try to upload images that are alreadly online!
-        if re.match('^https*://',file_path) is None:
+        if re.match('^https?://',file_path) is None:
           self.img_files.append(file_path)
       except:
         print 'img tag contained no "src" attritube'
+    if tag=='span':
+      try: 
+        self.has_math = self.has_math or attrs['class']=='math'
+      except:
+        pass
       
   def handle_data(self,data):
     self.cur_data+=data
@@ -84,6 +74,9 @@ class HTMLWPParser(hp.HTMLParser):
   def hasMore(self):
     return self.has_more
 
+  def hasMath(self):
+    return self.has_math
+
 def main(argv):
   parser = argparse.ArgumentParser()
   parser.add_argument('-b','--blog', help='url of wordpress blog to which you want to post',dest='url')
@@ -112,13 +105,24 @@ def main(argv):
   for f in args.files:
 
     #handle different file types
-    ext = os.path.splitext(f)[1]
+    froot, ext = os.path.splitext(f)
     if ext in ['.html','.txt']:
       #read in html file
       txt=open(f).read()
     elif ext in [ '.markdown', '.mdown', '.mkdn', '.mdwn', '.mkd', '.md']:
-      import markdown2 as md
-      txt=md.markdown(open(f).read())
+      try:
+       import subprocess as sp
+       cmd  = 'multimarkdown  {0} -o {1}.html'.format(f,froot)
+       sp.call(cmd.split())
+       txt = open('{}.html'.format(froot)).read()
+      except OSError as e:
+        print "Warning: multimarkdown not install. Please install multimarkdown from https://github.com/fletcher/MultiMarkdown-4 if you would like mathjax support"
+        try:
+          import markdown2 as md
+          txt=md.markdown(open(f).read())
+        except:
+          print "No markdown compilers available. Exiting"
+          exit(0)
     else:
       print "cannot proceed uploading non html file: {}".format(f)
       exit() 
@@ -160,6 +164,10 @@ def main(argv):
       for i,url in urls.iteritems():
         txt=re.sub('src="*{}"*'.format(i),'src="{}"'.format(url),txt)
     os.chdir(dir_init)
+
+    #if this input file has math, let wordpress know it needs to run the mathjax interpreter
+    if html_parser.hasMath():
+      txt='[mathjax]'+txt
 
     #setup the post object
     title=title.strip().lstrip()
