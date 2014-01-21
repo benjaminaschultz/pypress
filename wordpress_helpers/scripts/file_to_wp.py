@@ -198,6 +198,8 @@ def main(argv):
           if cf['key']=='local_file' and cf['value']==f_fullpath:
               #there is a bug somewhere that when this post is edited, the list of custom fields is appended
               #to rather than replaced. Adding the id is a hack that seems to stop it for now
+              post.terms_names['tags']+=p.terms_names['tags']
+              post.terms_names['categories']+=p.terms_names['categories']
               post.custom_fields = [({'key':'local_file','value':f_fullpath,'id':p.id})]
               client.call(wp.methods.posts.EditPost(p.id,post))
               print("Post previously titled \"{}\" updated from file \"{}\"".format(p.title,f))
