@@ -18,11 +18,8 @@ def main(argv,client=None):
   conf= WPConfig(url=args.url,username=args.username,password=args.password)
   if (client is None):
     client = conf.getDefaultClient()
-  wpmu=WPMediaUploader(client,reupload=True)
-  #if you are uploading specific files, don't mangle the names with md5 sums
-  urls = wpmu.upload(args.files)
-  for img,url in urls.iteritems():
-    print('File "{}" uploaded to "{}"'.format(img,url))
+  wmpu=WPMediaUploader(client)
+  wmpu.upload(args.files)
 
 if __name__=="__main__":
   main(sys.argv[1:])

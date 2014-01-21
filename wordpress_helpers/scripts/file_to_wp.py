@@ -90,7 +90,6 @@ def main(argv):
                       nargs='*',dest='cats',default=list())
   parser.add_argument('-f','--files', help='file to be uploaded to the Glog',dest='files',
                       nargs='+',required=True)
-  parser.add_argument('--overwrite', help='if turned on, this script will upload even if another post have been made from this file',action='store_true',default=False)
 
   args = parser.parse_args(argv)
 
@@ -187,23 +186,20 @@ def main(argv):
     post.terms_names['category'] += cats + html_parser.getCategories()
     post.terms_names['post_tag'] += tags + html_parser.getTags()
 
+    #if this post has been posted before, just edit it, otherwise make a new post
     posted=False
-    
-    if not args.overwrite:
-      #if this post has been posted before, just edit it, otherwise make a new post
-      posts = client.call(wp.methods.posts.GetPosts())
-      post_dict = dict()
-      for p in posts:
-        for cf in p.custom_fields:
-          if cf['key']=='local_file' and cf['value']==f_fullpath:
-              #there is a bug somewhere that when this post is edited, the list of custom fields is appended
-              #to rather than replaced. Adding the id is a hack that seems to stop it for now
-              post.terms_names['tags']+=p.terms_names['tags']
-              post.terms_names['categories']+=p.terms_names['categories']
-              post.custom_fields = [({'key':'local_file','value':f_fullpath,'id':p.id})]
-              client.call(wp.methods.posts.EditPost(p.id,post))
-              print("Post previously titled \"{}\" updated from file \"{}\"".format(p.title,f))
-              posted=True
+    posts = client.call(wp.methods.posts.GetPosts())
+    post_dict = dict()
+
+    for p in posts:
+      for cf in p.custom_fields:
+        if cf['key']=='local_file' and cf['value']==f_fullpath:
+            #there is a bug somewhere that when this post is edited, the list of custom fields is appended
+            #to rather than replaced. Adding the id is a hack that seems to stop it for now
+            post.custom_fields = [({'key':'local_file','value':f_fullpath,'id':p.id})]
+            client.call(wp.methods.posts.EditPost(p.id,post))
+            print("Post previously titled \"{}\" updated from file \"{}\"".format(p.title,f))
+            posted=True
           
     if not posted:
       client.call(wp.methods.posts.NewPost(post))
