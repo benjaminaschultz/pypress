@@ -2,6 +2,7 @@
 import os,re,sys
 import argparse
 
+import webbrowser as wb
 import HTMLParser as hp
 import StringIO as strio
 import wordpress_xmlrpc as wp
@@ -88,8 +89,11 @@ def main(argv):
                       nargs='*',dest='tags',default=list())
   parser.add_argument('-c','--categories', help='categories for the wordpress post',
                       nargs='*',dest='cats',default=list())
-  parser.add_argument('-f','--files', help='file to be uploaded to the Glog',dest='files',
+  parser.add_argument('-s','--status', help='status of the  wordpress post. Valid parameters are "publish", "draft"',
+                      dest='status',default=None)
+  parser.add_argument('-f','--files', help='file to be uploaded to the blog',dest='files',
                       nargs='+',required=True)
+  parser.add_argument('--show', help='Show file after it has been uploaded to the  blog',action ='store_true')
 
   args = parser.parse_args(argv)
 
@@ -102,6 +106,7 @@ def main(argv):
   tags = args.tags
   cats = args.cats
   
+
   titles += [None]*(len(args.files)-len(titles))
   for f,title in zip(args.files,titles):
 
@@ -172,9 +177,17 @@ def main(argv):
 
     #setup the post object
     title=title.strip().lstrip()
+
     post = conf.getDefaultPost()
     post.title=title
     post.content=txt
+    #overwrite the status if specified in the cl args
+    if args.status is not None:
+      if args.status in ["publish","draft"]:
+        post.post_status=args.status
+      else:
+        print "Post status '{}' is invalid. 'publish' and 'draft' are the only valid options.".format(args.status)
+        exit(0)
 
     #full filepath
     f_fullpath = os.path.realpath(f)
@@ -187,6 +200,7 @@ def main(argv):
     post.terms_names['post_tag'] += tags + html_parser.getTags()
 
     #if this post has been posted before, just edit it, otherwise make a new post
+    p_id=0
     posted=False
     posts = client.call(wp.methods.posts.GetPosts())
     post_dict = dict()
@@ -197,13 +211,19 @@ def main(argv):
             #there is a bug somewhere that when this post is edited, the list of custom fields is appended
             #to rather than replaced. Adding the id is a hack that seems to stop it for now
             post.custom_fields = [({'key':'local_file','value':f_fullpath,'id':p.id})]
-            client.call(wp.methods.posts.EditPost(p.id,post))
+            resp = client.call(wp.methods.posts.EditPost(p.id,post))
+            p_id=p.id
             print("Post previously titled \"{}\" updated from file \"{}\"".format(p.title,f))
             posted=True
           
     if not posted:
-      client.call(wp.methods.posts.NewPost(post))
+      resp=client.call(wp.methods.posts.NewPost(post))
+      p_id=resp
       print("New post titled \"{}\" created from file \"{}\"".format(title,f))
+    
+    if args.show:
+      resp = client.call(wp.methods.posts.GetPost(p_id))
+      wb.open(resp.link)
 
 if __name__=="__main__":
   main(sys.argv[1:])
