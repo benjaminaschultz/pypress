@@ -54,11 +54,11 @@ class HTMLWPParser(hp.HTMLParser):
       self.title=data.lstrip('title:')
     if(re.match('^tags:',data) is not None):
       data=data.lstrip('tags:')
-      PATTERN = re.compile(r'''((?:[^\s"']|"[^"]*"|'[^']*')+)''')
+      PATTERN = re.compile(r'''((?:[^,"']|"[^"]*"|'[^']*')+)''')
       self.tags+=[re.sub('''['"]''','',t) for t in PATTERN.split(data)[1::2]]
     if(re.match('^categories:',data) is not None):
       data=data.lstrip('categories:')
-      PATTERN = re.compile(r'''((?:[^\s"']|"[^"]*"|'[^']*')+)''')
+      PATTERN = re.compile(r'''((?:[^,"']|"[^"]*"|'[^']*')+)''')
       self.cats+=[re.sub('''['"]''','',t) for t in PATTERN.split(data)[1::2]]
     if(re.match('^more',data) is not None):
       self.has_more=True
@@ -94,6 +94,8 @@ def main(argv):
   parser.add_argument('-f','--files', help='file to be uploaded to the blog',dest='files',
                       nargs='+',required=True)
   parser.add_argument('--show', help='Show file after it has been uploaded to the  blog',action ='store_true')
+  parser.add_argument('--post_type', help='type of the  wordpress post. Valid parameters are "post" or "page"',
+                      dest='type',default=None)
 
   args = parser.parse_args(argv)
 
@@ -187,6 +189,13 @@ def main(argv):
         post.post_status=args.status
       else:
         print "Post status '{}' is invalid. 'publish' and 'draft' are the only valid options.".format(args.status)
+        exit(0)
+
+    if args.type is not None:
+      if args.type in ["page","post"]:
+        post.post_type=args.type
+      else:
+        print "Post type '{}' is invalid. 'publish' and 'draft' are the only valid options.".format(args.type)
         exit(0)
 
     #full filepath
