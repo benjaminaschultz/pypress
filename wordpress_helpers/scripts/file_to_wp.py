@@ -37,7 +37,6 @@ class HTMLWPParser(hp.HTMLParser):
         self.has_math = self.has_math or attrs['class']=='math'
       except:
         pass
-      
   def handle_data(self,data):
     self.cur_data+=data
 
@@ -107,11 +106,9 @@ def main(argv):
   titles = args.titles
   tags = args.tags
   cats = args.cats
-  
 
   titles += [None]*(len(args.files)-len(titles))
   for f,title in zip(args.files,titles):
-
     #handle different file types
     froot, ext = os.path.splitext(f)
     if ext in ['.html','.txt']:

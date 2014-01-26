@@ -10,8 +10,7 @@ def main(arv):
   parser.add_argument('-u','--user', help="username with which you'd like to post to the blog",dest='username')
   parser.add_argument('-p','--password', help="password with which you'd like to post to the blog",dest='password')
   parser.add_argument('-d','--delta', help='number of days back from to post you worklog from. defaults to posting only todays accomplishments',default=1,dest='delta',type=int)
-  parser.add_argument('-t','--tags', help='task hashtags to post to the worklog. defaults to posting all tasks',nargs='*',dest='htags')
-
+  parser.add_argument('-t','--tags', help='task hashtags to post to the worklog. defaults to posting all tasks',nargs='*',dest='htags',default=list())
   args = parser.parse_args(sys.argv[1:])
 
   conf= WPConfig(url=args.url,username=args.username,password=args.password)
