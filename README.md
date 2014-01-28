@@ -90,4 +90,4 @@ New Features
 -------------
 Eventually I'd like to add support for:
 + LaTeX in some form. WordPress doesn't like the html that htlatex creates, and multimarkdown and mathjax work pretty well for now
-+ I'd love to get support for wordpress's secure_xmlrpc plugin working. This would allow you to safely post to blog without typing in your password and without storing your wp password anywhere.
++ I'd love to get support for wordpress's [secure_xmlrpc plugin](http://wordpress.org/plugins/secure-xml-rpc/) working. This would allow you to safely post to blog without typing in your password and without storing your wp password anywhere.
