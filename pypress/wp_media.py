@@ -24,7 +24,7 @@ class WPMediaUploader:
 
     tot_size/=(1024**2)
     if tot_size>max_size:
-      resp =  raw_input("This will upload %5.2f MB of media to the Glog. Are you sure this is your intent? [y/N]"%(tot_size))
+      resp =  raw_input("This will upload %5.2f MB of media to your blog. Continue? [y/N]"%(tot_size))
       if not resp=='y':
         print('exiting')
         exit(0)
