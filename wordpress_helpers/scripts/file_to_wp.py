@@ -6,6 +6,7 @@ import webbrowser as wb
 import HTMLParser as hp
 import StringIO as strio
 import wordpress_xmlrpc as wp
+import subprocess as sp
 
 from wordpress_helpers import *
 
@@ -77,6 +78,22 @@ class HTMLWPParser(hp.HTMLParser):
   def hasMath(self):
     return self.has_math
 
+#convert file f to html and returns the text
+def md_to_html(f):
+  froot, ext = os.path.splitext(f)
+  try:
+    cmd  = 'multimarkdown  {0}.md -o {0}.html'.format(froot)
+    sp.call(cmd.split())
+    return open('{}.html'.format(froot)).read()
+  except OSError as e:
+    print "Warning: multimarkdown not install. Please install multimarkdown from https://github.com/fletcher/MultiMarkdown-4 if you would like mathjax support"
+    try:
+      import markdown2 as md
+      return md.markdown(open(f).read())
+    except:
+      print "No markdown compilers available. Exiting"
+      exit(0)
+
 def main(argv):
   parser = argparse.ArgumentParser()
   parser.add_argument('-b','--blog', help='url of wordpress blog to which you want to post',dest='url')
@@ -114,20 +131,21 @@ def main(argv):
     if ext in ['.html','.txt']:
       #read in html file
       txt=open(f).read()
-    elif ext in [ '.markdown', '.mdown', '.mkdn', '.mdwn', '.mkd', '.md']:
+
+    #convert ipython notebook to markdown, then to html. this makes nicer html
+    #than direct html conversion
+    elif ext=='.ipynb':
       try:
-       import subprocess as sp
-       cmd  = 'multimarkdown  {0} -o {1}.html'.format(f,froot)
-       sp.call(cmd.split())
-       txt = open('{}.html'.format(froot)).read()
-      except OSError as e:
-        print "Warning: multimarkdown not install. Please install multimarkdown from https://github.com/fletcher/MultiMarkdown-4 if you would like mathjax support"
-        try:
-          import markdown2 as md
-          txt=md.markdown(open(f).read())
-        except:
-          print "No markdown compilers available. Exiting"
-          exit(0)
+        cmd = 'ipython nbconvert --to markdown {}'.format(f)
+        sp.call(cmd.split())
+        txt=md_to_html(froot+'.md')
+
+      except OSError:
+        print('could not convert python notebook to markdown')
+
+    #read markdown file
+    elif ext in [ '.markdown', '.mdown', '.mkdn', '.mdwn', '.mkd', '.md']:
+      txt=md_to_html(f)
     else:
       print "cannot proceed uploading non html file: {}".format(f)
       exit() 

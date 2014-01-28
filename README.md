@@ -31,11 +31,11 @@ Titles, tags and categories can be specified on the command line or in files usi
 
 glogpy 
 ===============
-glogpy contains two python libraries (python-wordpress-xmlrpc and wordpress\_helpers) that allow for easy posting to wordpress from python scripts. It also contains a few scripts to automatically upload markdown, html and txt files directly to the wordpress along with any images they contain.
+glogpy contains two python libraries (python-wordpress-xmlrpc and wordpress\_helpers) that allow for easy posting to wordpress from python scripts. It also contains a few scripts to automatically upload markdown, ipython notebooks, html and txt files directly to the wordpress along with any images they contain.
 
 Get glogpy from codeblue:
     
-    git clone https://$USER@codeblue.umich.engin.umich.edu/git/glogpy
+    git clone https://$USER@codeblue.umich.edu/git/glogpy
 python\_xmlrpc
 --------------
 This is a branch of this [repository](https://github.com/maxcutler/python-wordpress-xmlrpc) that I have modified to work with the secure\_xmlrpc wordpress plugin. Of course, the secure\_xmlrpc plugin does not work right now, but when it does this library will let you securely post to wordpress without entering your password.
@@ -104,9 +104,9 @@ I recommend adding some aliases to the scripts to your bashrc (e.g.)
     alias wpcp='/path/to/wordpress_helpers/scripts/media_to_wp.py'
     alias wpup='/path/to/wordpress_helpers/scripts/file_to_wp.py'
 
-If you plan to use mathjax and markdown together, please install multimarkdown. There are mac installers available [here](http://fletcherpenney.net/multimarkdown/download/), or you can compile from source if you're a linux user ([git repo](https://github.com/fletcher/MultiMarkdown))
+*If you plan to use mathjax and markdown together, please install multimarkdown.* There are mac installers available [here](http://fletcherpenney.net/multimarkdown/download/), or you can compile from source if you're a linux user ([git repo](https://github.com/fletcher/MultiMarkdown))
 
-If for whatever reason you can get multimarkdown working, you can use python's markdown2 library, but math syntax will not work.
+If for whatever reason you can't get multimarkdown working, you can use python's markdown2 library, but math syntax will not work.
 
     sudo apt-get install python2.7-pip
 or
@@ -117,7 +117,7 @@ then
     sudo pip install markdown2
 Next we want to put the config file in place so that the scripts know who you are and where you want to blog to without using command line args every time.
   
-    cp /path/to/wordpress_helper/examples/wp-helper-example.json ~/.wp-helper.json
+    cp /path/to/wordpress_helper/examples/wp-helpers-example.json ~/.wp-helpers.json
 Edit the config file with your username, blog url, default post settings, etc.
 
 Basic behavior

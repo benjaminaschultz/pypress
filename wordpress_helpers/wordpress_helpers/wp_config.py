@@ -24,8 +24,7 @@ class WPConfig:
     try:
       self.config=json.load(open(cfg_file))
     except IOError:
-      print('error opening configuration file {} falling back on defaults')
-      exit(0)
+      print('error opening configuration file "{}" falling back on defaults'.format(cfg_file))
 
     self.url=url
     if url is None and  self.config.has_key('url'):
