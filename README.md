@@ -11,7 +11,7 @@ This will make a post titled "Look mom, no mouse!" in category "test" with a tag
 again.
 
     $ wpup -f example2.md -b http://someblog.com -u benjaminaschultz
-This will make a post containing the contents of example.md, and title, tag and categorize the post using comment tags contained within example.md. In this example, you will post to someblog.com, rather than someotherblog.com with is in your ~/.pypress-config.json file.
+This will make a post containing the contents of example.md, and title, tag and categorize the post using comment tags contained within example.md. In this example, you will post to someblog.com, rather than someotherblog.com from your ~/.pypress-config.json file.
 
 pypress
 ===============
