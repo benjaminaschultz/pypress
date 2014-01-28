@@ -54,7 +54,7 @@ class WPConfig:
   def getDefaultClient(self):
       try:
         if self.config.has_key('public_key') and self.config.has_key('private_key'):
-          return wp.SecureClient(url=self.url+'/xmlrpc.php', public_key=self.config['public_key'], private_key=self.config['private_key'])
+          return wp.Client(url=self.url+'/xmlrpc.php', public_key=self.config['public_key'], private_key=self.config['private_key'])
         else:
           return  UPClient(url=self.url+'/xmlrpc.php', username=self.username, password=self.password)
       except Exception,e:
