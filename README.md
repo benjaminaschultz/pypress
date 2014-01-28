@@ -73,12 +73,14 @@ When you use these scripts to upload a markdown file e.g.,
     $ wpup -f some_file.md -b https://blogthatoverridesconfile/ -u me
 
 The following things happen:
+
 1. The command line args are parsed and override any settings in your ~/.wp-helpers.json file
 2. Your markdown file is converted to html with multimarkdown
 3. An xmlrpc client connects to the blog
 4. The html text is parsed for images, title, tags, categories, a "more" tag and math content
 5. Images are renamed by their md5 sum and uploaded to the server if they do not exist already
    + Note: To cut  down on the amount of data sent back from the server, only the 50 most recent media items are checked against the media contained in a particular post
+
 6. Image links are replaced by links to media on the server
 7. If this post does not contain a "more" tag, one is inserted to prevent large posts takings over the blog.
 8. If this post contains math, a `[mathjax]` flag is added to the beginning of the post so WP knows to render equations.
