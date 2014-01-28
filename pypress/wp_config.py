@@ -14,10 +14,10 @@ from wp_media import *
 class WPConfig:
   def __init__(self, url=None, username=None, password=None):
     cfg_file=''
-    if os.path.isfile('.wp-helpers.json'):
-      cfg_file='.wp-helpers.json'
-    elif os.path.isfile(os.path.expanduser('~/.wp-helpers.json')):
-      cfg_file=os.path.expanduser('~/.wp-helpers.json')
+    if os.path.isfile('.pypress-config.json'):
+      cfg_file='.pypress-config.json'
+    elif os.path.isfile(os.path.expanduser('~/.pypress-config.json')):
+      cfg_file=os.path.expanduser('~/.pypress-config.json')
     
 
     #parse config file(

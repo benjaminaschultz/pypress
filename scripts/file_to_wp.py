@@ -8,7 +8,7 @@ import StringIO as strio
 import wordpress_xmlrpc as wp
 import subprocess as sp
 
-from wordpress_helpers import *
+from pypress import *
 
 # create a subclass and override the handler methods
 class HTMLWPParser(hp.HTMLParser):

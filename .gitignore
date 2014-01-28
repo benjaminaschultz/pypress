@@ -1,1 +1,8 @@
-wordpress_helpers/build
+*.pyc
+*.swp
+*.egg-info
+.DS_Store
+dist/*
+wp-config.cfg
+build
+/docs/_build

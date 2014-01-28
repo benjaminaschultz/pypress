@@ -1,6 +1,6 @@
 {
-  "url":"https://codeblue.umich.edu/wordpress/glotzer",
-  "username":"uniqname",
+  "url":"http://localhost/wordpress",
+  "username":"username",
   "display_name":"First Last",
   "post_defaults":
     {

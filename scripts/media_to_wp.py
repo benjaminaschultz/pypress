@@ -3,7 +3,7 @@ import os,re,sys
 import mimetypes as mt
 import argparse
 import wordpress_xmlrpc as wp
-from wordpress_helpers import *
+from pypress import *
 
 def main(argv,client=None):
   parser = argparse.ArgumentParser()

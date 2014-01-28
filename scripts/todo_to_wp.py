@@ -3,7 +3,8 @@ import os,re,sys
 import argparse as ap
 import datetime as dt
 import wordpress_xmlrpc as wp
-from wordpress_helpers import *
+from pypress import *
+
 def main(arv):
   parser = ap.ArgumentParser()
   parser.add_argument('-b','--blog', help='url of wordpress blog to which you want to post',dest='url')

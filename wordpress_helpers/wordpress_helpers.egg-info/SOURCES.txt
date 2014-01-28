@@ -1,9 +1,0 @@
-setup.py
-wordpress_helpers/__init__.py
-wordpress_helpers/wp_clients.py
-wordpress_helpers/wp_config.py
-wordpress_helpers/wp_media.py
-wordpress_helpers.egg-info/PKG-INFO
-wordpress_helpers.egg-info/SOURCES.txt
-wordpress_helpers.egg-info/dependency_links.txt
-wordpress_helpers.egg-info/top_level.txt

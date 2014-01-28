@@ -1,108 +1,51 @@
-Using the Glog is already pretty painless, but I wanted an easy way to make posts with media from the command line and maintain records of my work. I wanted to have it in a language with _normal_ sized font so that others could easily extend it. Well...
+My reseach group maintains a wordpress blog as our lab notebook. Leaving the terminal to go make a post was disruptive to my workflow and resulted in limited use of the blog. I wrote pypress so that I could post markdown files, ipython notebooks and other file formats directly to a wordpress blog and upload the media they contain with a single command.
 
-    $wpup README.md
-    Username: baschult
-    Password: 
-    New post titled "Introducing GlogPy" created from file "README.md" 
-![mission accomplished](~/Downloads/accomplished.jpg "mission accomplished")
-Ah, rats! I forgot to categorize or tag the post
+Titles, tags and categories can be specified on the command line or in files using html comment syntax. Multimarkdown is used to convert markdown to html, so Mathjax is supported with markdown math syntax - `\(( mathy bits \\)` for inline math and `\\[ mathy bits \\]` for display math. Once a file has been used to create a post, that post can be updated by just running the same command again. Media is not reuploaded unless it has been modified.
 
-    $wpup -f README.md -c Knowledgebase Announcement -t glog wordpress 'command line'
-    Username:baschult 
-    Password: 
-    Post titled "Introducing GlogPy" updated from file "README.md"
-That's better. 
-<!--more-->
-Titles, tags and categories can be specified on the command line or in files using html comment syntax
-<!--congrats, you found the surprise--><!--title:Introducing GlogPy--><!--tags:'super secret tag'-->
+Making a post is as easy as
 
-    <!--title:Introducing GlogPy-->
-    <!--tags:glog, python, wordpress-->
-    <!--categories:Knowledgebase-->
-"more" tags are automatically inserted after 10 lines if there is not one in the file already to prevent posts. for example...
-    
-    header1
-    =======
-    content
-    <!--more-->
-    more content
+    $ wpup -f example.md -T "Look mom, no mouse!" -c tests -t pypress
+This will make a post titled "Look mom, no mouse!" in category "test" with a tag of pypress and content contained in example.md. If you changed the content of example.md, you can simply edit the post from the command line by running 
 
- Mathjax is support with markdown math syntax - '\(( \\)' for inline math and '\\[ \\]' for display math. It would be great if we could get this working with latex in some form, but wordpress doesn't like the output from htlatex, so that can be added later if its necessary.
+    $ wpup -f example.md -T "Look mom, no mouse!" -c tests -t pypress
+again.
 
-glogpy 
+    $ wpup -f example2.md -b http://someblog.com -u benjaminaschultz
+This will make a post containing the contents of example.md, and title, tag and categorize the post using comment tags contained within example.md. In this example, you will post to someblog.com, rather than someotherblog.com with is in your ~/.pypress-config.json file.
+
+pypress
 ===============
-glogpy contains two python libraries (python-wordpress-xmlrpc and wordpress\_helpers) that allow for easy posting to wordpress from python scripts. It also contains a few scripts to automatically upload markdown, ipython notebooks, html and txt files directly to the wordpress along with any images they contain.
-
-Get glogpy from codeblue:
-    
-    git clone https://$USER@codeblue.umich.edu/git/glogpy
-python\_xmlrpc
---------------
-This is a branch of this [repository](https://github.com/maxcutler/python-wordpress-xmlrpc) that I have modified to work with the secure\_xmlrpc wordpress plugin. Of course, the secure\_xmlrpc plugin does not work right now, but when it does this library will let you securely post to wordpress without entering your password.
-
-wordpress\_helpers
---------------
-These are some convenience classes and scripts I wrote so that blog defaults can be handled read from a config file, as well as prompt the user for a password before posting so that your password doesn't need to be stored in a file anywhere.
-
-this folder also contains three scripts that I wrote and file useful.
+pypress contains a couple of convenience classes and scripts so that blog and post defaults can be handled read from a config file, as well as prompt the user for a password before posting so that your password doesn't need to be stored in a file anywhere.
 
 ### media\_to\_wp.py
 This script will batch upload media to your wordpress blog
 
     usage: media_to_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] files [files ...]
-    optional arguments:
-      -h, --help  show this help message and exit
-      -b URL, --blog URL  url of wordpress blog to which you want to post
-      -u USERNAME, --user USERNAME  username with which you'd like to post to the blog
-      -p PASSWORD, --password PASSWORD  password with which you'd like to post to the blog
 
 ### file\_to\_wp.py
-This script will batch upload markdown, txt and html files to your wordpress blog, automatically uploading any images and fixing image links. Direct uploading of markdown files requires the python markdown package
+This script will batch upload markdown, txt, ipython notebooks and html files to your wordpress blog, automatically uploading any images and fixing image links. Direct uploading of markdown files requires multimarkdown
 
-    usage: file\_to\_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] [-T TITLE] [-t [TAGS [TAGS ...]]] [-c [CATS [CATS ...]]] -f FILES [FILES ...]
-    optional arguments:
-        -h, --help            show this help message and exit
-        -b URL, --blog URL    url of wordpress blog to which you want to post
-        -u USERNAME, --user USERNAME  username with which you'd like to post to the blog
-        -p PASSWORD, --password PASSWORD  password with which you'd like to post to the blog
-        -T TITLE, --title TITLE  title of wordpress post, defaults to first header if unspecified.
-        -t [TAGS [TAGS ...]], --tags [TAGS [TAGS ...]]  tags for the wordpress post
-        -c [CATS [CATS ...]], --categories [CATS [CATS ...]]  categories for the wordpress post
-        -f FILES [FILES ...], --files FILES [FILES ...]  files to be posted to the Glog
-
-### todo\_to\_wp.py
-This script integrates with todo.txt to post a report of tasks you've accomplished, automatically tagging posts with todo.txt project tags and linking to collaborators with todo.txt person handles.
-
-I think todo.txt is a really awesome tool. Get it [here.](http://todotxt.com/) I'll write a separate post about how I use this script and todo.txt to easily maintain a worklog.
-
-    usage: todo_to_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] [-d DELTA] [-t [HTAGS [HTAGS ...]]]
-    optional arguments:
-     -h, --help            show this help message and exit
-     -b URL, --blog URL    url of wordpress blog to which you want to post
-     -u USERNAME, --user USERNAME username with which you'd like to post to the blog
-     -p PASSWORD, --password PASSWORD password with which you'd like to post to the blog
-     -d DELTA, --delta DELT  number of days back from to post you worklog from. defaults to posting only todays accomplishments
-     -t [HTAGS [HTAGS ...]], --tags [HTAGS [HTAGS ...]]  task hashtags to post to the worklog. defaults to posting all tasks
-
+    usage: file_to_wp.py [-h] [-b URL] [-u USERNAME] [-p PASSWORD] [-T [TITLES [TITLES ...]]] [-t [TAGS [TAGS ...]]] [-c [CATS [CATS ...]]] [-s STATUS] -f FILES [FILES ...] [--show] [--post_type TYPE]
 
 Installation
 ---------------
-Begin by installing the python xml
+Begin by installing my fork of Max Culter's python-xmlrpc library
 
-    cd python-wordpress-xmprc
+    git clone https://github.com/benjaminaschultz/pypress.git
+    cd pypress
     sudo python setup.py install
 
 Then install the wordpress helpers package
 
-    cd ../wordpress_helpers
+    cd ../
+    git clone https://github.com/benjaminaschultz/pypress.git
+    cd pypress
     sudo python setup.py install
-
 I recommend adding some aliases to the scripts to your bashrc (e.g.)
 
-    #Glogpy aliases
-    alias wptd='/path/to/wordpress_helpers/scripts/todo_to_wp.py'
-    alias wpcp='/path/to/wordpress_helpers/scripts/media_to_wp.py'
-    alias wpup='/path/to/wordpress_helpers/scripts/file_to_wp.py'
+    #pypress aliases
+    alias wpcp='/path/to/pypress/scripts/media_to_wp.py'
+    alias wpup='/path/to/pypress/scripts/file_to_wp.py'
 
 *If you plan to use mathjax and markdown together, please install multimarkdown.* There are mac installers available [here](http://fletcherpenney.net/multimarkdown/download/), or you can compile from source if you're a linux user ([git repo](https://github.com/fletcher/MultiMarkdown))
 
@@ -115,14 +58,15 @@ or
 then
 
     sudo pip install markdown2
-Next we want to put the config file in place so that the scripts know who you are and where you want to blog to without using command line args every time.
-  
-    cp /path/to/wordpress_helper/examples/wp-helpers-example.json ~/.wp-helpers.json
+
+Next we want to put the config file in place so that the scripts know who you are and where you want to blog to without supplying command line args every time..
+
+    cp examples/pypress-config.json ~/.pypress-config.json
 Edit the config file with your username, blog url, default post settings, etc.
 
 Basic behavior
 -------------
-Read all about markdown [here.](http://daringfireball.net/projects/markdown/). 
+Read all about markdown syntax [here.](http://daringfireball.net/projects/markdown/). 
 
 When you use these scripts to upload a markdown file e.g.,
 
@@ -134,12 +78,14 @@ The following things happen:
 3. An xmlrpc client connects to the blog
 4. The html text is parsed for images, title, tags, categories, a "more" tag and math content
 5. Images are renamed by their md5 sum and uploaded to the server if they do not exist already
-   + Note: To cut down on the amount of data sent back from the server, only the 50 most recent media items are checked against the media contained in a particular post
+   + Note: To cut  down on the amount of data sent back from the server, only the 50 most recent media items are checked against the media contained in a particular post
 6. Image links are replaced by links to media on the server
-7. If this post does not contain a more tag, one is inserted to prevent large posts takings over the blog.
+7. If this post does not contain a "more" tag, one is inserted to prevent large posts takings over the blog.
 8. If this post contains math, a `[mathjax]` flag is added to the beginning of the post so WP knows to render equations.
-9. Posts by this user are retrieved. If a post has previously been created using this file, then it is updated by default, but this behavior can be overridden. Otherwise a new post is created.
+9. Posts by this user are retrieved. If a post has previously been created using this file, then it is updated by default, but this behavior can be overridden. Otherwise, a new post is created.
 
 New Features
 -------------
-I had josh make this repository so that it be easy for others to correct my mistakes and add new features. Everyone in the group should be able to commit, so have at it!
+Eventually I'd like to add support for:
++ LaTeX in some form. WordPress doesn't like the html that htlatex creates, and multimarkdown and mathjax work pretty well for now
++ I'd love to get support for wordpress's secure_xmlrpc plugin working. This would allow you to safely post to blog without typing in your password and without storing your wp password anywhere.

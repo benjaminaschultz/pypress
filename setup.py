@@ -5,13 +5,13 @@ try:
 except ImportError:
     from distutils.core import setup
 
-setup(name='python-wordpress-xmlrpc',
-      version='2.2',
-      description='WordPress XML-RPC API Integration Library',
-      author='Max Cutler',
-      author_email='max@maxcutler.com',
-      url='https://github.com/maxcutler/python-wordpress-xmlrpc/',
-      packages=['wordpress_xmlrpc', 'wordpress_xmlrpc.methods'],
+setup(name='pypress',
+      version='0.1',
+      description='Convenvience wrappers for blogging from python scripts and the command line securely',
+      author='Benjamin Schultz',
+      author_email='benjamin.a.schultz@gmail.com',
+      url='https://codeblue.umich.edu/git/glogpy',
+      packages=['pypress'],
       license='BSD',
       test_suite='nose.collector',
       classifiers=[
@@ -28,5 +28,4 @@ setup(name='python-wordpress-xmlrpc',
           'Natural Language :: English',
       ],
       include_package_data=True,
-      long_description=open('README.rst').read(),
 )
