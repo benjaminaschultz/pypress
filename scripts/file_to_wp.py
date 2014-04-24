@@ -56,18 +56,18 @@ class HTMLWPParser(hp.HTMLParser):
 
   def handle_comment(self,data):
     if(re.match('^title:',data) is not None):
-      self.title=data.lstrip('title:')
+      self.title=data.lstrip('title:').lstrip().rstrip()
     if(re.match('^tags:',data) is not None):
       data=data.lstrip('tags:')
       PATTERN = re.compile(r'''((?:[^,"']|"[^"]*"|'[^']*')+)''')
-      self.tags+=[re.sub('''['"]''','',t) for t in PATTERN.split(data)[1::2]]
+      self.tags+=[re.sub('''['"]''','',t).lstrip().rstrip() for t in PATTERN.split(data)[1::2]]
     if(re.match('^categories:',data) is not None):
       data=data.lstrip('categories:')
       PATTERN = re.compile(r'''((?:[^,"']|"[^"]*"|'[^']*')+)''')
-      self.cats+=[re.sub('''['"]''','',t) for t in PATTERN.split(data)[1::2]]
+      self.cats+=[re.sub('''['"]''','',t).lstrip().rstrip() for t in PATTERN.split(data)[1::2]]
     if(re.match('^more',data) is not None):
       self.has_more=True
-  
+
   def getTitle(self):
     return self.title
 
@@ -117,10 +117,11 @@ def main(argv):
   parser.add_argument('--show', help='Show file after it has been uploaded to the  blog',action ='store_true')
   parser.add_argument('--post_type', help='type of the  wordpress post. Valid parameters are "post" or "page"',
                       dest='type',default=None)
+  parser.add_argument('--allow_cat_creation', help='Allow for category creation. default to false',action ='store_true')
 
   args = parser.parse_args(argv)
 
-  #intit
+  #init
   conf= WPConfig(url=args.url,username=args.username,password=args.password)
   client = conf.getDefaultClient()
 
@@ -226,6 +227,19 @@ def main(argv):
 
     #add categories and tags to post that were specified in document via html tags
     post.terms_names['category'] += cats + html_parser.getCategories()
+    if not args.allow_cat_creation:
+        resp=client.call(wp.methods.taxonomies.GetTerms('category'))
+        existing_cats=[r.name.lower() for r in resp]
+        new_cats=False
+        for cat in post.terms_names['category']:
+            if cat.lower() not in existing_cats:
+                print("{} is not in the existing categories".format(cat))
+                new_cats=True
+        if new_cats:
+            print("existing categories: {}".format(', '.join(existing_cats)))
+            print("if you would like to create a new category, use the --allow_cat_creation.")
+            exit()
+
     post.terms_names['post_tag'] += tags + html_parser.getTags()
 
     #if this post has been posted before, just edit it, otherwise make a new post
@@ -244,12 +258,12 @@ def main(argv):
             p_id=p.id
             print("Post previously titled \"{}\" updated from file \"{}\"".format(p.title,f))
             posted=True
-          
+
     if not posted:
       resp=client.call(wp.methods.posts.NewPost(post))
       p_id=resp
       print("New post titled \"{}\" created from file \"{}\"".format(title,f))
-    
+
     if args.show:
       resp = client.call(wp.methods.posts.GetPost(p_id))
       wb.open(resp.link)
