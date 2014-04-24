@@ -1,5 +1,5 @@
 import sys
-import wp_config as wpc
+import .wp_config as wpc
 import wordpress_xmlrpc as wp
 import getpass as gp
 ## WordPressPost class that 

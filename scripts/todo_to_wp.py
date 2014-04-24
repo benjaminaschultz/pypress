@@ -60,7 +60,7 @@ def main(arv):
             accomplishments[d].append(line)
   else:
     print('Could not open done.txt')
-    print todo_dir
+    print(todo_dir)
     exit(0)
   
 

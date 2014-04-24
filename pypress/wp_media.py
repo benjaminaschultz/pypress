@@ -40,7 +40,7 @@ class WPMediaUploader:
       #retrieve the media library
       media_list=self.client.call(wp.methods.media.GetMediaLibrary({'number':max(50,int(1.5*len(files)))}))
       media_lib = {os.path.split(m.link)[1]:m.link for m in media_list}
-     
+
     for f,rf in zip(files,real_files):
       server_filename= md5s[f] + exts[f]
       if server_filename in media_lib:
@@ -53,6 +53,5 @@ class WPMediaUploader:
         data= {'name':server_filename, 'type':mime, 'bits':bits }
         resp = self.client.call(wp.methods.media.UploadFile(data))
         urls[f]=resp['url']
-
 
     return urls

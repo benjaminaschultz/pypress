@@ -3,8 +3,13 @@ import os,re,sys
 import argparse
 
 import webbrowser as wb
-import HTMLParser as hp
-import StringIO as strio
+if sys.version_info[0] == 2:
+  import HTMLParser as hp
+  import StringIO as strio
+else:
+  import html.parser as hp
+  from io import StringIO as strio
+
 import wordpress_xmlrpc as wp
 import subprocess as sp
 
@@ -32,7 +37,7 @@ class HTMLWPParser(hp.HTMLParser):
         if re.match('^https?://',file_path) is None:
           self.img_files.append(file_path)
       except:
-        print 'img tag contained no "src" attritube'
+        print('img tag contained no "src" attritube')
     if tag=='span':
       try: 
         self.has_math = self.has_math or attrs['class']=='math'
@@ -86,12 +91,12 @@ def md_to_html(f):
     sp.call(cmd.split())
     return open('{}.html'.format(froot)).read()
   except OSError as e:
-    print "Warning: multimarkdown not install. Please install multimarkdown from https://github.com/fletcher/MultiMarkdown-4 if you would like mathjax support"
+    print("Warning: multimarkdown not install. Please install multimarkdown from https://github.com/fletcher/MultiMarkdown-4 if you would like mathjax support"))
     try:
       import markdown2 as md
       return md.markdown(open(f).read())
     except:
-      print "No markdown compilers available. Exiting"
+      print("No markdown compilers available. Exiting")
       exit(0)
 
 def main(argv):
@@ -147,7 +152,7 @@ def main(argv):
     elif ext in [ '.markdown', '.mdown', '.mkdn', '.mdwn', '.mkd', '.md']:
       txt=md_to_html(f)
     else:
-      print "cannot proceed uploading non html file: {}".format(f)
+      print("cannot proceed uploading non html file: {}".format(f))
       exit() 
     
     #parser the html file to be posted
@@ -184,7 +189,7 @@ def main(argv):
     if(len(imgs)>0):
       wpmu = WPMediaUploader(client)
       urls = wpmu.upload(imgs)
-      for i,url in urls.iteritems():
+      for i,url in urls.items():
         txt=re.sub('src="*{}"*'.format(i),'src="{}"'.format(url),txt)
     os.chdir(dir_init)
 
@@ -203,14 +208,14 @@ def main(argv):
       if args.status in ["publish","draft"]:
         post.post_status=args.status
       else:
-        print "Post status '{}' is invalid. 'publish' and 'draft' are the only valid options.".format(args.status)
+        print("Post status '{}' is invalid. 'publish' and 'draft' are the only valid options.".format(args.status))
         exit(0)
 
     if args.type is not None:
       if args.type in ["page","post"]:
         post.post_type=args.type
       else:
-        print "Post type '{}' is invalid. 'publish' and 'draft' are the only valid options.".format(args.type)
+        print("Post type '{}' is invalid. 'publish' and 'draft' are the only valid options.".format(args.type))
         exit(0)
 
     #full filepath

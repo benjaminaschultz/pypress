@@ -2,8 +2,8 @@ import json
 import sys
 import os
 import wordpress_xmlrpc as wp
-from wp_clients import *
-from wp_media import *
+from .wp_clients import *
+from .wp_media import *
 
 ## Helper class to make posting to wordpress a bit easier
 # conf = WPConfig()
@@ -18,7 +18,6 @@ class WPConfig:
       cfg_file='.pypress-config.json'
     elif os.path.isfile(os.path.expanduser('~/.pypress-config.json')):
       cfg_file=os.path.expanduser('~/.pypress-config.json')
-    
 
     #parse config file(
     try:
@@ -42,7 +41,7 @@ class WPConfig:
     post = wp.WordPressPost()
     try:
       post_attrs = (post.definition.keys())
-      for k,v in self.config['post_defaults'].iteritems():
+      for k,v in self.config['post_defaults'].items():
         if k in post_attrs:
           setattr(post,k,v)
     except KeyError:
