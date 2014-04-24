@@ -91,7 +91,7 @@ def md_to_html(f):
     sp.call(cmd.split())
     return open('{}.html'.format(froot)).read()
   except OSError as e:
-    print("Warning: multimarkdown not install. Please install multimarkdown from https://github.com/fletcher/MultiMarkdown-4 if you would like mathjax support"))
+    print("Warning: multimarkdown not installed. Please install multimarkdown from https://github.com/fletcher/MultiMarkdown-4 if you would like mathjax support")
     try:
       import markdown2 as md
       return md.markdown(open(f).read())
